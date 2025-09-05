@@ -1,3 +1,4 @@
+import { GenericActorsBuilder } from '../ActorsBuilder';
 import { GenericProvideBuilder } from '../ProvideBuilder';
 
 describe('GenericProvideBuilder', () => {
@@ -204,10 +205,12 @@ describe('GenericProvideBuilder', () => {
           shortDelay: 500,
           longDelay: (context: any) => context.timeout || 5000
         })
-        .withActors({
-          dataFetcher: async () => ({ data: [1, 2, 3] }),
-          dataSaver: async (data: any) => ({ saved: true, data })
-        })
+        .withActors(
+          GenericActorsBuilder.create()
+            .withActor('dataFetcher', async () => ({ data: [1, 2, 3] }))
+            .withActor('dataSaver', async (data: any) => ({ saved: true, data }))
+            .build()
+        )
         .build();
 
       expect(implementations.actions).toBeDefined();
@@ -366,16 +369,18 @@ describe('GenericProvideBuilder', () => {
             return Math.min(1000 * Math.pow(2, context.retryCount || 0), 10000);
           }
         })
-        .withActors({
-          fetchUserData: async () => {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            return { id: 1, name: 'John Doe', email: 'john@example.com' };
-          },
-          saveUserData: async (data: any) => {
-            await new Promise(resolve => setTimeout(resolve, 300));
-            return { success: true, savedAt: new Date().toISOString() };
-          }
-        })
+        .withActors(
+          GenericActorsBuilder.create()
+            .withActor('fetchUserData', async () => {
+              await new Promise(resolve => setTimeout(resolve, 500));
+              return { id: 1, name: 'John Doe', email: 'john@example.com' };
+            })
+            .withActor('saveUserData', async (data: any) => {
+              await new Promise(resolve => setTimeout(resolve, 300));
+              return { success: true, savedAt: new Date().toISOString() };
+            })
+            .build()
+        )
         .build();
 
       // Verify all implementation types are present

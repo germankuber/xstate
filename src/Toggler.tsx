@@ -3,6 +3,7 @@ import { useMachine } from '@xstate/react';
 import { useEffect } from 'react';
 import { assign, fromPromise } from 'xstate';
 import './Toggler.css';
+import { GenericActorsBuilder } from './xstate-builders';
 import {
   ActionsBuilder,
   DelaysBuilder,
@@ -344,9 +345,11 @@ const stepperMachine = baseMachine.provide(
         })
         .build()
     )
-    .withActors({
-      fetchUserData: fetchUserDataActor
-    })
+    .withActors(
+      GenericActorsBuilder.create()
+        .withFetchUserData(fetchUserDataActor)
+        .build()
+    )
     .build()
 );
 console.log('🎭 [PROVIDE] Actor fetchUserData REGISTRADO:', fetchUserData);
@@ -630,7 +633,9 @@ export const Toggler = () => {
     .withActions(ActionsBuilder.create()...)
     .withGuards(GuardsBuilder.create()...)
     .withDelays(DelaysBuilder.create()...)
-    .withActors({ fetchData: fetchFunction })
+    .withActors(ActorsBuilder.create()
+      .withFetchData(fetchFunction)
+      .build())
     .build()
 );`}
               </pre>

@@ -1,5 +1,6 @@
 import { useMachine } from '@xstate/react';
 import { assign } from 'xstate';
+import { GenericActorsBuilder } from './xstate-builders';
 import {
     ActionsBuilder,
     DelaysBuilder,
@@ -196,9 +197,11 @@ const stepperMachine = baseMachine.provide(
         })
         .build()
     )
-    .withActors({
-      fetchUserData: fetchUserData
-    })
+    .withActors(
+      GenericActorsBuilder.create()
+        .withFetchUserData(fetchUserData)
+        .build()
+    )
     .build()
 );
 
@@ -412,7 +415,9 @@ export const Toggler = () => {
     .withActions(ActionsBuilder.create()...)
     .withGuards(GuardsBuilder.create()...)
     .withDelays(DelaysBuilder.create()...)
-    .withActors({ fetchData: fetchFunction })
+    .withActors(ActorsBuilder.create()
+      .withFetchData(fetchFunction)
+      .build())
     .build()
 );`}
           </pre>

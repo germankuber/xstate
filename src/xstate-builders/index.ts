@@ -3,6 +3,7 @@
 
 export { GenericActionOptionsBuilder } from './ActionOptionsBuilder';
 export { GenericActionsBuilder } from './ActionsBuilder';
+export { GenericActorsBuilder } from './ActorsBuilder';
 export { GenericDelayedTransitionsBuilder } from './DelayedTransitionsBuilder';
 export { GenericDelaysBuilder } from './DelaysBuilder';
 export { GenericEventBuilder } from './EventBuilder';

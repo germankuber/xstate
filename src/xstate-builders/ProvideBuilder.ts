@@ -45,7 +45,12 @@ export class GenericProvideBuilder<
   }
 
   // Proporcionar implementaciones de actores
-  withActors(actorsConfig: Record<string, any>) {
+  withActors(actorsBuilder: any) {
+    // Si es un builder, obtenemos su configuración
+    const actorsConfig = actorsBuilder && typeof actorsBuilder.build === 'function'
+      ? actorsBuilder.build()
+      : actorsBuilder;
+    
     this.implementations.actors = actorsConfig;
     // También agregar como services para compatibilidad con XState v5
     this.implementations.services = actorsConfig;
