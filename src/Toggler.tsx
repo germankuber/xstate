@@ -158,6 +158,18 @@ const baseMachine = MachineBuilder.create('stepperBase')
         StepState.STEP4,
         StateBuilder.create()
           .withEntry(StepAction.ON_ENTER_STEP, StepAction.SET_STEP4_NAME)
+          .withTransitions(
+            StepBuilder.create(StepState.STEP4)
+              .withTransitionDefinition(
+                StepEvent.PREV,
+                TransitionBuilder.create()
+                  .to(StepState.STEP3)
+                  .withActions(StepAction.LOG_TRANSITION, StepAction.DECREMENT_STEP_COUNT)
+                  .guardedBy(StepGuard.CAN_GO_PREV)
+                  .build()
+              )
+              .build()
+          )
           .build()
       )
       .build()
