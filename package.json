@@ -1,29 +1,47 @@
 {
-  "name": "xstate",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@statelyai/inspect": "^0.4.0",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.8.0",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.126",
-    "@types/react": "^19.1.12",
-    "@types/react-dom": "^19.1.9",
-    "@xstate/react": "^6.0.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4",
-    "xstate": "^5.21.0"
+  "name": "@xstate/builders",
+  "version": "1.0.0",
+  "description": "Fluent builder pattern library for XState v5+ machines with full TypeScript support",
+  "private": false,
+  "type": "module",
+  "workspaces": [
+    "examples"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "browser": "dist/index.esm.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.esm.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "xstate": ">=5.0.0"
+  },
+  "optionalDependencies": {
+    "@xstate/react": ">=6.0.0",
+    "react": ">=16.8.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --coverage --watchAll=false",
+    "lint": "eslint src --ext .ts,.tsx",
+    "type-check": "tsc --noEmit",
+    "example:install": "cd examples && npm install",
+    "example:dev": "cd examples && npm run dev",
+    "example:build": "cd examples && npm run build",
+    "prepublishOnly": "npm run test:ci && npm run build",
+    "start": "npm run example:dev"
   },
   "eslintConfig": {
     "extends": [
@@ -43,16 +61,33 @@
       "last 1 safari version"
     ]
   },
-  "jest": {
-    "transformIgnorePatterns": [
-      "node_modules/(?!(@statelyai/inspect|copy-anything|is-what|superjson)/)"
-    ]
-  },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.13",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@statelyai/inspect": "^0.4.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@xstate/react": "^6.0.0",
     "autoprefixer": "^10.4.21",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.5.6",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "rollup": "^4.29.2",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.9.2"
+    "ts-jest": "^29.4.1",
+    "typescript": "^4.9.5",
+    "web-vitals": "^2.1.4",
+    "xstate": "^5.21.0"
   }
 }

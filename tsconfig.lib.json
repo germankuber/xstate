@@ -1,0 +1,32 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "declarationDir": "dist",
+    "declarationMap": true,
+    "module": "esnext",
+    "target": "es2018",
+    "noEmit": false,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src/lib",
+    "src/xstate-builders"
+  ],
+  "exclude": [
+    "**/*.test.*",
+    "**/*.spec.*",
+    "**/*.stories.*",
+    "examples/**",
+    "src/xstate-builders/__tests__/**",
+    "src/xstate-builders/examples/**"
+  ]
+}
