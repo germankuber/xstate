@@ -233,180 +233,204 @@ export const Toggler = () => {
   } = state.context;
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      {/* 🎯 Header con información de debug */}
-      <div style={{ 
-        backgroundColor: '#f5f5f5', 
-        padding: '15px', 
-        marginBottom: '20px', 
-        borderRadius: '8px',
-        fontSize: '14px'
-      }}>
-        <h3>🔧 Estado de Debug</h3>
-        <p><strong>Estado actual:</strong> {state.value as string}</p>
-        <p><strong>Nombre del paso:</strong> {currentStepName}</p>
-        <p><strong>Pasos visitados:</strong> {visitedSteps.join(' → ')}</p>
-        <p><strong>Contador de pasos:</strong> {stepCount}</p>
-        <p><strong>Errores:</strong> {errorCount}</p>
-        {lastError && <p><strong>Último error:</strong> {lastError}</p>}
-        {isLoading && <p><strong>🔄 Estado:</strong> Cargando datos...</p>}
-        {apiData && <p><strong>📊 API Data:</strong> Datos disponibles</p>}
-        {apiError && <p style={{ color: 'red' }}><strong>❌ API Error:</strong> {apiError}</p>}
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-purple-700 p-5 font-sans">
+      <div className="max-w-4xl mx-auto">
+        {/* 🎯 Header Principal */}
+        <div className="text-center mb-8 text-white">
+          <h1 className="text-4xl font-bold mb-3 drop-shadow-lg">
+            🚀 XState Builder Pattern Demo
+          </h1>
+          <p className="text-xl opacity-90">
+            Patrón .provide() con DelaysBuilder, InvokeBuilder y más
+          </p>
+        </div>
 
-      {/* Progress bar */}
-      <div style={{ marginBottom: '30px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-          {[1, 2, 3, 4].map(step => (
-            <div
-              key={step}
-              style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                backgroundColor: currentStepInfo?.number >= step ? '#007acc' : '#e0e0e0',
-                color: currentStepInfo?.number >= step ? 'white' : '#666',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '12px',
-                fontWeight: 'bold'
-              }}
-            >
-              {step}
+        {/* 🎯 Header con información de debug */}
+        <div className="bg-white/95 backdrop-blur-sm p-6 mb-6 rounded-xl shadow-xl border border-white/20">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            🔧 Estado de Debug
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="text-sm font-medium text-gray-600">Estado actual</div>
+              <div className="text-base font-semibold text-gray-800">{state.value as string}</div>
             </div>
-          ))}
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="text-sm font-medium text-gray-600">Nombre del paso</div>
+              <div className="text-base font-semibold text-gray-800">{currentStepName}</div>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="text-sm font-medium text-gray-600">Contador de pasos</div>
+              <div className="text-base font-semibold text-gray-800">{stepCount}</div>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="text-sm font-medium text-gray-600">Errores</div>
+              <div className={`text-base font-semibold ${errorCount > 0 ? 'text-red-600' : 'text-gray-800'}`}>
+                {errorCount}
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-3 bg-gray-100 rounded-lg mb-4">
+            <div className="text-sm font-medium text-gray-600">Pasos visitados</div>
+            <div className="text-base font-semibold text-gray-800 mt-1">
+              {visitedSteps.join(' → ')}
+            </div>
+          </div>
+
+          {(lastError || isLoading || apiData || apiError) && (
+            <div className="space-y-2">
+              {lastError && (
+                <div className="p-3 bg-red-100 border border-red-200 rounded-lg">
+                  <div className="text-sm font-medium text-red-800">Último error</div>
+                  <div className="text-sm text-red-700">{lastError}</div>
+                </div>
+              )}
+              {isLoading && (
+                <div className="p-3 bg-yellow-100 border border-yellow-200 rounded-lg">
+                  <div className="text-sm font-medium text-yellow-800">🔄 Estado</div>
+                  <div className="text-sm text-yellow-700">Cargando datos...</div>
+                </div>
+              )}
+              {apiData && (
+                <div className="p-3 bg-green-100 border border-green-200 rounded-lg">
+                  <div className="text-sm font-medium text-green-800">📊 API Data</div>
+                  <div className="text-sm text-green-700">Datos disponibles</div>
+                </div>
+              )}
+              {apiError && (
+                <div className="p-3 bg-red-100 border border-red-200 rounded-lg">
+                  <div className="text-sm font-medium text-red-800">❌ API Error</div>
+                  <div className="text-sm text-red-700">{apiError}</div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-        <div style={{ 
-          width: '100%', 
-          height: '4px', 
-          backgroundColor: '#e0e0e0', 
-          borderRadius: '2px' 
-        }}>
-          <div style={{
-            width: `${((currentStepInfo?.number - 1) / 3) * 100}%`,
-            height: '100%',
-            backgroundColor: '#007acc',
-            borderRadius: '2px',
-            transition: 'width 0.3s ease'
-          }} />
-        </div>
-      </div>
 
-      {/* Información del paso actual */}
-      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h2 style={{ color: '#333', marginBottom: '10px' }}>
-          Paso {currentStepInfo?.number}: {currentStepInfo?.title}
-        </h2>
-        <p style={{ color: '#666', fontSize: '16px' }}>
-          {currentStepInfo?.description}
-        </p>
-      </div>
+        {/* Progress bar mejorado */}
+        <div className="bg-white/95 backdrop-blur-sm p-6 rounded-xl shadow-xl mb-6">
+          <div className="mb-5">
+            <div className="flex justify-between items-center mb-4">
+              {[1, 2, 3, 4].map(step => (
+                <div key={step} className="flex flex-col items-center">
+                  <div
+                    className={`
+                      w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-300
+                      ${currentStepInfo?.number >= step 
+                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' 
+                        : 'bg-gray-200 text-gray-500'
+                      }
+                    `}
+                  >
+                    {currentStepInfo?.number > step ? '✓' : step}
+                  </div>
+                  <div className={`
+                    text-xs mt-2 font-medium
+                    ${currentStepInfo?.number >= step ? 'text-gray-800' : 'text-gray-400'}
+                  `}>
+                    Step {step}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${((currentStepInfo?.number - 1) / 3) * 100}%` }}
+              />
+            </div>
+          </div>
 
-      {/* Botones de navegación */}
-      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-        <button 
-          onClick={() => send({ type: StepEvent.PREV })}
-          disabled={!canGoPrev}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: canGoPrev ? '#ff6b6b' : '#ccc',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: canGoPrev ? 'pointer' : 'not-allowed',
-            fontWeight: 'bold'
-          }}
-        >
-          ← Anterior
-        </button>
-        
-        <button 
-          onClick={() => send({ type: StepEvent.NEXT })}
-          disabled={!canGoNext}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: canGoNext ? '#51cf66' : '#ccc',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: canGoNext ? 'pointer' : 'not-allowed',
-            fontWeight: 'bold'
-          }}
-        >
-          Siguiente →
-        </button>
-      </div>
-
-      {/* 🚀 Mostrar información de la API */}
-      {isLoading && (
-        <div style={{ 
-          marginTop: '20px', 
-          padding: '15px', 
-          backgroundColor: '#fff3cd', 
-          border: '1px solid #ffeeba',
-          borderRadius: '4px',
-          textAlign: 'center'
-        }}>
-          <div>⏳ Cargando datos desde el servidor...</div>
-          <div style={{ marginTop: '10px', fontSize: '12px', color: '#856404' }}>
-            Esto puede tomar unos segundos
+          {/* Información del paso actual */}
+          <div className="text-center">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-2">
+              {currentStepInfo?.title}
+            </h2>
+            <p className="text-lg text-gray-600 opacity-80">
+              {currentStepInfo?.description}
+            </p>
           </div>
         </div>
-      )}
 
-      {apiData && (
-        <div style={{ 
-          marginTop: '20px', 
-          padding: '15px', 
-          backgroundColor: '#d4edda', 
-          border: '1px solid #c3e6cb',
-          borderRadius: '4px'
-        }}>
-          <h4>✅ Datos cargados exitosamente:</h4>
-          <pre style={{ fontSize: '12px', marginTop: '10px' }}>
-            {JSON.stringify(apiData, null, 2)}
-          </pre>
+        {/* Botones de navegación mejorados */}
+        <div className="flex gap-4 justify-center flex-wrap mb-8">
+          <button 
+            onClick={() => send({ type: StepEvent.PREV })}
+            disabled={!canGoPrev}
+            className={`
+              px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 transform
+              ${canGoPrev 
+                ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 hover:shadow-red-500/40 hover:-translate-y-0.5 active:translate-y-0' 
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'
+              }
+            `}
+          >
+            ← Anterior
+          </button>
+          
+          <button 
+            onClick={() => send({ type: StepEvent.NEXT })}
+            disabled={!canGoNext}
+            className={`
+              px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 transform
+              ${canGoNext 
+                ? 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/30 hover:shadow-green-500/40 hover:-translate-y-0.5 active:translate-y-0' 
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'
+              }
+            `}
+          >
+            Siguiente →
+          </button>
         </div>
-      )}
 
-      {apiError && (
-        <div style={{ 
-          marginTop: '20px', 
-          padding: '15px', 
-          backgroundColor: '#f8d7da', 
-          border: '1px solid #f5c6cb',
-          borderRadius: '4px'
-        }}>
-          <h4>❌ Error al cargar datos:</h4>
-          <div style={{ color: '#721c24', marginTop: '10px' }}>
-            {apiError}
+        {/* 🚀 Mostrar información de la API */}
+        {isLoading && (
+          <div className="mt-5 p-4 bg-yellow-100 border border-yellow-200 rounded-lg text-center">
+            <div className="text-yellow-800 font-medium">⏳ Cargando datos desde el servidor...</div>
+            <div className="mt-2 text-sm text-yellow-600">
+              Esto puede tomar unos segundos
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* 🚀 Cheat Sheet del patrón .provide() */}
-      <div style={{ 
-        marginTop: '40px', 
-        padding: '20px', 
-        backgroundColor: '#f8f9fa', 
-        border: '1px solid #dee2e6',
-        borderRadius: '8px'
-      }}>
-        <h3>📋 Cheat Sheet: Patrón .provide()</h3>
-        <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
-          <p><strong>🎯 Estructura básica:</strong></p>
-          <pre style={{ backgroundColor: '#e9ecef', padding: '10px', borderRadius: '4px', fontSize: '12px' }}>
+        {apiData && (
+          <div className="mt-5 p-4 bg-green-100 border border-green-200 rounded-lg">
+            <h4 className="text-green-800 font-semibold mb-2">✅ Datos cargados exitosamente:</h4>
+            <pre className="text-xs mt-2 bg-green-50 p-3 rounded overflow-auto">
+              {JSON.stringify(apiData, null, 2)}
+            </pre>
+          </div>
+        )}
+
+        {apiError && (
+          <div className="mt-5 p-4 bg-red-100 border border-red-200 rounded-lg">
+            <h4 className="text-red-800 font-semibold mb-2">❌ Error al cargar datos:</h4>
+            <div className="text-red-700 mt-2">
+              {apiError}
+            </div>
+          </div>
+        )}
+
+        {/* 🚀 Cheat Sheet del patrón .provide() */}
+        <div className="mt-10 p-6 bg-gray-50 border border-gray-200 rounded-xl shadow-lg">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">📋 Cheat Sheet: Patrón .provide()</h3>
+          <div className="text-sm leading-relaxed space-y-4">
+            <div>
+              <p className="font-semibold text-gray-700 mb-2">🎯 Estructura básica:</p>
+              <pre className="bg-gray-100 p-4 rounded-lg text-xs overflow-auto">
 {`const machineWithImpls = baseMachine.provide({
   actions: { /* implementaciones */ },
   guards: { /* implementaciones */ },
   delays: { /* implementaciones */ },
   actors: { /* implementaciones */ }
 });`}
-          </pre>
-          
-          <p><strong>🚀 Con nuestros builders:</strong></p>
-          <pre style={{ backgroundColor: '#e9ecef', padding: '10px', borderRadius: '4px', fontSize: '12px' }}>
+              </pre>
+            </div>
+            
+            <div>
+              <p className="font-semibold text-gray-700 mb-2">🚀 Con nuestros builders:</p>
+              <pre className="bg-gray-100 p-4 rounded-lg text-xs overflow-auto">
 {`const machine = baseMachine.provide(
   ProvideBuilder.create()
     .withActions(ActionsBuilder.create()...)
@@ -415,14 +439,18 @@ export const Toggler = () => {
     .withActors({ fetchData: fetchFunction })
     .build()
 );`}
-          </pre>
+              </pre>
+            </div>
 
-          <p><strong>⏱️ Tipos de delays implementados:</strong></p>
-          <ul>
-            <li><code>.withDelay(name, milliseconds)</code> - Delay fijo</li>
-            <li><code>.withDynamicDelay(name, function)</code> - Delay dinámico</li>
-            <li><code>.withDelayReference(name, reference)</code> - Referencia a otro delay</li>
-          </ul>
+            <div>
+              <p className="font-semibold text-gray-700 mb-2">⏱️ Tipos de delays implementados:</p>
+              <ul className="list-disc list-inside space-y-1 text-gray-600">
+                <li><code className="bg-gray-200 px-2 py-1 rounded text-xs">.withDelay(name, milliseconds)</code> - Delay fijo</li>
+                <li><code className="bg-gray-200 px-2 py-1 rounded text-xs">.withDynamicDelay(name, function)</code> - Delay dinámico</li>
+                <li><code className="bg-gray-200 px-2 py-1 rounded text-xs">.withDelayReference(name, reference)</code> - Referencia a otro delay</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
