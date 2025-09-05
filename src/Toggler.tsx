@@ -341,54 +341,41 @@ export const Toggler = () => {
   } = state.context;
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #3b82f6, #8b5cf6, #7c3aed)', 
-      padding: '20px', 
-      fontFamily: 'Arial, sans-serif' 
-    }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-violet-700 p-5 font-sans">
+      <div className="max-w-6xl mx-auto">
         {/* 🎯 Header Principal */}
-        <div style={{ textAlign: 'center', marginBottom: '30px', color: 'white' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '10px' }}>
+        <div className="text-center mb-8 text-white">
+          <h1 className="text-4xl font-bold mb-3">
             🚀 XState Builder Pattern Demo
           </h1>
-          <p style={{ fontSize: '1.2rem', opacity: 0.9 }}>
+          <p className="text-xl opacity-90">
             Patrón .provide() con DelaysBuilder, InvokeBuilder y más
           </p>
         </div>
 
         {/* 🎯 Header con información de debug */}
-        <div style={{ 
-          background: 'rgba(255,255,255,0.95)', 
-          padding: '25px', 
-          marginBottom: '25px', 
-          borderRadius: '12px', 
-          boxShadow: '0 10px 25px rgba(0,0,0,0.1)' 
-        }}>
-          <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#374151', marginBottom: '15px' }}>
+        <div className="bg-white/95 backdrop-blur-sm p-6 mb-6 rounded-xl shadow-2xl">
+          <h3 className="text-xl font-semibold text-gray-700 mb-4">
             🔧 Estado de Debug
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '15px' }}>
-            <div style={{ padding: '15px', background: '#f9fafb', borderRadius: '8px' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#6b7280' }}>Estado actual</div>
-              <div style={{ fontSize: '1rem', fontWeight: '600', color: '#374151' }}>{state.value as string}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="text-sm font-medium text-gray-500">Estado actual</div>
+              <div className="text-base font-semibold text-gray-800">{state.value as string}</div>
             </div>
-            <div style={{ padding: '15px', background: '#f9fafb', borderRadius: '8px' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#6b7280' }}>Nombre del paso</div>
-              <div style={{ fontSize: '1rem', fontWeight: '600', color: '#374151' }}>{currentStepName}</div>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="text-sm font-medium text-gray-500">Nombre del paso</div>
+              <div className="text-base font-semibold text-gray-800">{currentStepName}</div>
             </div>
-            <div style={{ padding: '15px', background: '#f9fafb', borderRadius: '8px' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#6b7280' }}>Contador de pasos</div>
-              <div style={{ fontSize: '1rem', fontWeight: '600', color: '#374151' }}>{stepCount}</div>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="text-sm font-medium text-gray-500">Contador de pasos</div>
+              <div className="text-base font-semibold text-gray-800">{stepCount}</div>
             </div>
-            <div style={{ padding: '15px', background: '#f9fafb', borderRadius: '8px' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '500', color: '#6b7280' }}>Errores</div>
-              <div style={{ 
-                fontSize: '1rem', 
-                fontWeight: '600', 
-                color: errorCount > 0 ? '#dc2626' : '#374151' 
-              }}>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="text-sm font-medium text-gray-500">Errores</div>
+              <div className={`text-base font-semibold ${
+                errorCount > 0 ? 'text-red-600' : 'text-gray-800'
+              }`}>
                 {errorCount}
               </div>
             </div>
