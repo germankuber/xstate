@@ -1,3 +1,4 @@
+import { createBrowserInspector } from '@statelyai/inspect';
 import { useMachine } from '@xstate/react';
 import { assign } from 'xstate';
 import {
@@ -20,7 +21,12 @@ import {
     TransitionBuilder
 } from './stepper/types';
 
-// 🚀 Función simulada de API para demostrar invoke
+// � Configurar inspector visual de XState
+const inspector = createBrowserInspector({
+  autoStart: true
+});
+
+// �🚀 Función simulada de API para demostrar invoke
 const fetchUserData = async (): Promise<{ name: string; email: string; preferences: string[] }> => {
   // Simular delay de red
   await new Promise(resolve => setTimeout(resolve, 2000));
@@ -214,7 +220,9 @@ const getStepInfo = (currentStep: string) => {
 };
 
 export const Toggler = () => {
-  const [state, send] = useMachine(stepperMachine);
+  const [state, send] = useMachine(stepperMachine, {
+    inspect: inspector.inspect
+  });
   const currentStepInfo = getStepInfo(state.value as string);
   
   const canGoNext = !state.matches(StepState.STEP4) && !state.matches(StepState.LOADING_DATA);

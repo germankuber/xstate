@@ -2,7 +2,7 @@
 
 A comprehensive, type-safe builder pattern library for XState v5 that eliminates anonymous objects and provides a fluent, reusable API for creating state machines.
 
-![XState Builder Pattern Demo](https://img.shields.io/badge/XState-v5-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue) ![React](https://img.shields.io/badge/React-Compatible-61dafb) ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38bdf8)
+![XState Builder Pattern Demo](https://img.shields.io/badge/XState-v5-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue) ![React](https://img.shields.io/badge/React-Compatible-61dafb) ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38bdf8) ![Visual Debugging](https://img.shields.io/badge/Visual-Debugging-green)
 
 ## ✨ Features
 
@@ -13,6 +13,7 @@ A comprehensive, type-safe builder pattern library for XState v5 that eliminates
 - 🚀 **XState v5 Ready** - Built for the latest XState features
 - 📦 **Pattern Library** - Collection of specialized builders for common patterns
 - ⚡ **Performance Optimized** - Efficient builder pattern implementation
+- 👁️ **Visual Debugging** - Real-time state machine visualization with Stately Studio integration
 
 ## 🏗️ Architecture Overview
 
@@ -42,6 +43,8 @@ A comprehensive, type-safe builder pattern library for XState v5 that eliminates
 
 ```bash
 npm install xstate @xstate/react
+# For visual debugging and inspection
+npm install @statelyai/inspect
 # For the demo UI
 npm install -D tailwindcss postcss autoprefixer
 ```
@@ -318,6 +321,166 @@ The demo includes a beautiful Tailwind CSS implementation:
     `}>
       Next →
     </button>
+```
+
+## 👁️ Visual Debugging & State Machine Visualization
+
+One of XState's most powerful features is the ability to visualize and debug your state machines in real-time. Here are the different ways to see your machine in action:
+
+### 🎯 1. Stately Studio (Official - Recommended)
+
+The most comprehensive visualization tool with live debugging capabilities.
+
+**Setup:**
+1. Go to [https://stately.ai/studio](https://stately.ai/studio)
+2. Import your machine by copying the code
+3. See your state machine as an interactive diagram
+4. Simulate events and watch state/context changes in real-time
+
+**Live Connection with @statelyai/inspect:**
+
+```bash
+npm install @statelyai/inspect
+```
+
+```typescript
+import { createBrowserInspector } from '@statelyai/inspect';
+import { useMachine } from '@xstate/react';
+
+// Create inspector instance
+const inspector = createBrowserInspector({
+  autoStart: true
+});
+
+// Connect your machine
+export const MyComponent = () => {
+  const [state, send] = useMachine(myMachine, {
+    inspect: inspector.inspect
+  });
+  
+  return (
+    <div>
+      {/* Your UI */}
+      <button onClick={() => send({ type: 'NEXT' })}>
+        Next Step
+      </button>
+    </div>
+  );
+};
+```
+
+**What you get:**
+- 📊 Live state diagram updates as you interact with your app
+- 🔍 Real-time context inspection
+- 📝 Event timeline with full history
+- 🎮 Event simulation directly from the diagram
+- 🚀 Connect multiple machines simultaneously
+
+### 🎨 2. XState Visualizer (Quick & Static)
+
+Perfect for quick validation and sharing diagrams.
+
+**Usage:**
+1. Go to [https://stately.ai/viz](https://stately.ai/viz)
+2. Paste your machine definition code
+3. See the instant diagram
+
+**Example - Export your machine for visualization:**
+
+```typescript
+// Add this to your component for easy copying
+const machineForVisualization = baseMachine.provide(
+  ProvideBuilder.create()
+    .withActions(/* your actions */)
+    .withGuards(/* your guards */)
+    .build()
+);
+
+console.log('Machine for Stately Viz:', machineForVisualization);
+```
+
+### ⚙️ 3. Integrated DevTools
+
+Enable debugging directly in your app with browser extensions.
+
+```typescript
+import { useMachine } from '@xstate/react';
+
+export const MyComponent = () => {
+  const [state, send] = useMachine(myMachine, {
+    devTools: true // Enable Redux DevTools integration
+  });
+  
+  return <div>Your app</div>;
+};
+```
+
+**Browser Extensions:**
+- [Redux DevTools](https://github.com/reduxjs/redux-devtools) - See state transitions
+- [XState DevTools](https://chrome.google.com/webstore/detail/xstate-devtools) - Specialized XState inspector
+
+### 🔧 Demo Setup with Visual Debugging
+
+Our demo application is already configured with visual debugging! Here's how it works:
+
+```typescript
+// In src/Toggler.tsx
+import { createBrowserInspector } from '@statelyai/inspect';
+
+// 🔍 Visual inspector setup
+const inspector = createBrowserInspector({
+  autoStart: true
+});
+
+export const Toggler = () => {
+  const [state, send] = useMachine(stepperMachine, {
+    inspect: inspector.inspect // 🎯 Connect to visual debugger
+  });
+  
+  // Your component logic...
+};
+```
+
+### 🚀 Try It Now!
+
+1. **Start the development server:**
+   ```bash
+   npm start
+   ```
+
+2. **Open the inspector:**
+   - The browser inspector will automatically open in a new tab
+   - Or go to [https://stately.ai/inspect](https://stately.ai/inspect)
+
+3. **Interact with the stepper:**
+   - Click "Next" and "Previous" buttons
+   - Watch the state machine diagram update in real-time
+   - See the context changes (step counts, visited steps, etc.)
+   - Try triggering errors and see error handling
+
+### 📊 What You'll See in the Visual Debugger
+
+- **State Diagram:** Interactive flowchart of your machine
+- **Current State:** Highlighted active state
+- **Context Panel:** Live context data updates
+- **Event Log:** History of all events sent
+- **Event Simulator:** Send events directly from the diagram
+
+### 🎯 Debugging Workflow
+
+1. **Design Phase:** Use Stately Studio to design and validate your state machine
+2. **Development:** Use `@statelyai/inspect` for live debugging
+3. **Testing:** Use the visualizer to share and review state flows
+4. **Production:** Disable devTools for performance
+
+### 💡 Pro Tips
+
+- **Multiple Machines:** Connect several machines to see their interactions
+- **State Guards:** Visualize guard conditions and why transitions fail/succeed
+- **Async Operations:** Watch invoke actors and their lifecycle
+- **Context Evolution:** Track how context changes through the application flow
+
+**Visual debugging transforms XState development from guessing to understanding!** 🎯
 ```
 
 ## 📁 Project Structure
