@@ -3,6 +3,7 @@
 
 export { GenericActionsBuilder } from './ActionsBuilder';
 export { GenericDelaysBuilder } from './DelaysBuilder';
+export { GenericDelayedTransitionsBuilder } from './DelayedTransitionsBuilder';
 export { GenericGuardsBuilder } from './GuardsBuilder';
 export { GenericInvokeBuilder } from './InvokeBuilder';
 export { GenericMachineBuilder } from './MachineBuilder';

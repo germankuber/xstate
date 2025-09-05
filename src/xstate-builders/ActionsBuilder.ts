@@ -32,6 +32,99 @@ export class GenericActionsBuilder<
     return this;
   }
 
+  // 🏃‍♂️ spawnChild Action Support
+  withSpawnChildAction(
+    actionName: TAction,
+    actor: string | any,
+    options?: { id?: string; input?: any; systemId?: string }
+  ) {
+    this.actions[actionName] = (context: TContext, event: TEvent) => {
+      // Return spawnChild action object that XState will interpret
+      return {
+        type: 'xstate.spawnChild',
+        actor,
+        ...options
+      };
+    };
+    return this;
+  }
+
+  // ⬆️ sendParent Action Support
+  withSendParentAction(
+    actionName: TAction,
+    event: any
+  ) {
+    this.actions[actionName] = () => {
+      return {
+        type: 'xstate.sendParent',
+        event
+      };
+    };
+    return this;
+  }
+
+  // 🚦 Cancel Action Support
+  withCancelAction(
+    actionName: TAction,
+    id: string
+  ) {
+    this.actions[actionName] = () => {
+      return {
+        type: 'xstate.cancel',
+        id
+      };
+    };
+    return this;
+  }
+
+  // 🔧 enqueueActions Support
+  withEnqueueActionsAction(
+    actionName: TAction,
+    enqueueCallback: (helpers: any) => void
+  ) {
+    this.actions[actionName] = (context: TContext, event: TEvent) => {
+      return {
+        type: 'xstate.enqueueActions',
+        callback: enqueueCallback
+      };
+    };
+    return this;
+  }
+
+  // 📤 raise Action Support
+  withRaiseAction(
+    actionName: TAction,
+    eventToRaise: any,
+    options?: { delay?: number; id?: string }
+  ) {
+    this.actions[actionName] = () => {
+      return {
+        type: 'xstate.raise',
+        event: eventToRaise,
+        ...options
+      };
+    };
+    return this;
+  }
+
+  // 📨 sendTo Action Support
+  withSendToAction(
+    actionName: TAction,
+    target: string | any,
+    event: any,
+    options?: { delay?: number; id?: string }
+  ) {
+    this.actions[actionName] = () => {
+      return {
+        type: 'xstate.sendTo',
+        target,
+        event,
+        ...options
+      };
+    };
+    return this;
+  }
+
   build() {
     return this.actions;
   }
