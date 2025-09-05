@@ -47,6 +47,8 @@ export enum StepAction {
   ADD_VISITED_STEP = 'addVisitedStep',
   // 🚨 Nuevas acciones para cuando fallan las guardas
   ON_GUARD_FAIL = 'onGuardFail',
+  LOG_API_START = 'logApiStart',
+  SET_LOADING_STATE = 'setLoadingState',
   ON_VALIDATION_ERROR = 'onValidationError',
   INCREMENT_ERROR_COUNT = 'incrementErrorCount',
   // 🧪 Acciones de prueba para entender el flujo
@@ -56,7 +58,9 @@ export enum StepAction {
   SAVE_API_DATA = 'saveApiData',
   HANDLE_API_ERROR = 'handleApiError',
   SET_LOADING = 'setLoading',
-  CLEAR_LOADING = 'clearLoading'
+  CLEAR_LOADING = 'clearLoading',
+  ENTER_LOADING_STATE = 'enterLoadingState',
+  TRANSITION_TO_LOADING = 'transitionToLoading'
 }
 
 // Enum para las guardas

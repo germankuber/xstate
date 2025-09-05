@@ -47,10 +47,16 @@ export class GenericProvideBuilder<
   // Proporcionar implementaciones de actores
   withActors(actorsConfig: Record<string, any>) {
     this.implementations.actors = actorsConfig;
+    // También agregar como services para compatibilidad con XState v5
+    this.implementations.services = actorsConfig;
     return this;
   }
 
   build() {
+    console.log('🔧 [PROVIDE_BUILDER] Configuración final:', this.implementations);
+    console.log('🔧 [PROVIDE_BUILDER] Actions específicas:', this.implementations.actions);
+    console.log('🔧 [PROVIDE_BUILDER] Action keys:', Object.keys(this.implementations.actions || {}));
+    console.log('🔧 [PROVIDE_BUILDER] ¿saveApiData existe?:', 'saveApiData' in (this.implementations.actions || {}));
     return this.implementations;
   }
 }

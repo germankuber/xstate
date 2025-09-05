@@ -1,26 +1,29 @@
 import { createBrowserInspector } from '@statelyai/inspect';
 import { useMachine } from '@xstate/react';
-import { assign } from 'xstate';
+import { useEffect } from 'react';
+import { assign, fromPromise } from 'xstate';
 import './Toggler.css';
 import {
-    ActionsBuilder,
-    DelaysBuilder,
-    GuardsBuilder,
-    InvokeBuilder,
-    MachineBuilder,
-    ProvideBuilder,
-    StateBuilder,
-    StatesBuilder,
-    StepAction,
-    StepBuilder,
-    StepDelay,
-    StepEvent,
-    StepGuard,
-    StepperContext,
-    StepperEvent,
-    StepState,
-    TransitionBuilder
+  ActionsBuilder,
+  DelaysBuilder,
+  GuardsBuilder,
+  InvokeBuilder,
+  MachineBuilder,
+  ProvideBuilder,
+  StateBuilder,
+  StatesBuilder,
+  StepAction,
+  StepBuilder,
+  StepDelay,
+  StepEvent,
+  StepGuard,
+  StepperContext,
+  StepperEvent,
+  StepState,
+  TransitionBuilder
 } from './stepper/types';
+
+console.log('🔥🔥🔥 [TOGGLER] ARCHIVO RECARGADO - NUEVA VERSION!', new Date().toISOString());
 
 // � Configurar inspector visual de XState
 const inspector = createBrowserInspector({
@@ -29,20 +32,23 @@ const inspector = createBrowserInspector({
 
 // �🚀 Función simulada de API para demostrar invoke
 const fetchUserData = async (): Promise<{ name: string; email: string; preferences: string[] }> => {
-  // Simular delay de red
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  console.log('🔥 [API] fetchUserData INICIADO - La función se está ejecutando!');
   
-  // Simular posible error (20% de probabilidad)
-  if (Math.random() < 0.2) {
-    throw new Error('Error de red: No se pudo cargar los datos del usuario');
-  }
+  // Simular delay de red (MUY CORTO para debug)
+  console.log('⏱️ [API] Esperando 500ms...');
+  await new Promise(resolve => setTimeout(resolve, 500));
   
+  // NUNCA FALLAR - para debug
+  console.log('✅ [API] fetchUserData COMPLETADO - Devolviendo datos');
   return {
     name: 'Juan Pérez',
     email: 'juan@example.com',
     preferences: ['notifications', 'dark-mode', 'auto-save']
   };
 };
+
+// 🎭 Crear el actor de promesa para XState v5
+const fetchUserDataActor = fromPromise(fetchUserData);
 
 // 🎯 Máquina base SIN implementaciones (solo la estructura)
 const baseMachine = MachineBuilder.create('stepperBase')
@@ -88,7 +94,7 @@ const baseMachine = MachineBuilder.create('stepperBase')
                 StepEvent.NEXT,
                 TransitionBuilder.create()
                   .to(StepState.LOADING_DATA)
-                  .withActions(StepAction.SET_LOADING)
+                  .withActions(StepAction.SET_LOADING, StepAction.TRANSITION_TO_LOADING)
                   .build()
               )
               .withTransitionDefinition(
@@ -106,11 +112,15 @@ const baseMachine = MachineBuilder.create('stepperBase')
       .withState(
         StepState.LOADING_DATA,
         StateBuilder.create()
-          .withEntry(StepAction.SET_LOADING)
+          .withEntry(StepAction.SET_LOADING, StepAction.ENTER_LOADING_STATE)
           .withExit(StepAction.CLEAR_LOADING)
           .withInvoke(
             InvokeBuilder.create()
-              .withSource('fetchUserData')
+              .withSource((() => {
+                console.log('🎪 [DEBUG] Llamando withSource con string: "fetchUserData"');
+                return 'fetchUserData';
+              })())
+              .withId('fetchUserDataActor')
               .onDone(StepState.STEP3, StepAction.SAVE_API_DATA)
               .onError(StepState.STEP2, StepAction.HANDLE_API_ERROR)
               .build()
@@ -146,7 +156,7 @@ const baseMachine = MachineBuilder.create('stepperBase')
   )
   .build();
 
-// 🚀 Máquina CON implementaciones usando el patrón .provide()
+// � Máquina CON implementaciones usando el patrón .provide()
 const stepperMachine = baseMachine.provide(
   ProvideBuilder.create()
     .withActions(
@@ -160,20 +170,67 @@ const stepperMachine = baseMachine.provide(
         .withAction(StepAction.ON_ENTER_STEP, ({ context }) => {
           console.log('🚪 [PROVIDE] Entrando al estado:', context.currentStepName);
         })
+        .withAction(StepAction.SET_LOADING, ({ context }) => {
+          console.log('⏳ [PROVIDE] SET_LOADING ejecutado:', {
+            previousLoading: context.isLoading,
+            currentStep: context.currentStepName
+          });
+        })
         .withAssignAction(StepAction.SET_LOADING, assign({
           isLoading: true,
           apiError: undefined
         }))
+        .withAction(StepAction.TRANSITION_TO_LOADING, ({ context }) => {
+          console.log('🔄 [PROVIDE] TRANSICIÓN HACIA LOADING_DATA EJECUTADA:', {
+            from: context.currentStepName,
+            to: 'LOADING_DATA',
+            timestamp: new Date().toISOString()
+          });
+        })
+        .withAction(StepAction.SET_LOADING, ({ context }) => {
+          console.log('⏳ [PROVIDE] SET_LOADING ejecutado:', {
+            previousLoading: context.isLoading,
+            currentStep: context.currentStepName
+          });
+        })
+        .withAction(StepAction.ENTER_LOADING_STATE, ({ context }) => {
+          console.log('🚪🔄 [PROVIDE] ENTRANDO AL ESTADO LOADING_DATA:', {
+            currentStep: context.currentStepName,
+            isLoading: context.isLoading,
+            timestamp: new Date().toISOString()
+          });
+          console.log('📞 [PROVIDE] fetchUserData debería ejecutarse AHORA!');
+        })
         .withAssignAction(StepAction.CLEAR_LOADING, assign({
           isLoading: false
         }))
         .withAssignAction(StepAction.SAVE_API_DATA, assign({
-          apiData: (_, event: any) => event.data,
+          apiData: ({ event }) => {
+            console.log('🚨🚨🚨 [CODIGO ACTUALIZADO] SAVE_API_DATA ejecutado 🚨🚨🚨');
+            console.log('✅ [PROVIDE] SAVE_API_DATA ejecutado:', {
+              event: event,
+              eventType: event?.type,
+              output: event?.output,
+              eventKeys: event ? Object.keys(event) : 'no event'
+            });
+            
+            console.log('🔍 [DEBUG] Event completo en SAVE_API_DATA:', event);
+            
+            // Según la documentación oficial de XState v5, los datos están en event.output
+            return event?.output;
+          },
           isLoading: false,
           currentStepName: 'Datos cargados exitosamente'
         }))
+        .withAction(StepAction.HANDLE_API_ERROR, ({ context }, event) => {
+          console.log('❌ [PROVIDE] HANDLE_API_ERROR ejecutado:', {
+            error: (event as any)?.data,
+            errorCount: context.errorCount,
+            fullEvent: event
+          });
+        })
         .withAssignAction(StepAction.HANDLE_API_ERROR, assign({
-          apiError: (_, event: any) => event.data?.message || 'Error desconocido',
+          apiError: (_, event: any) => event?.data?.message || 'Error desconocido',
           isLoading: false,
           errorCount: ({ context }) => context.errorCount + 1
         }))
@@ -204,10 +261,36 @@ const stepperMachine = baseMachine.provide(
         .build()
     )
     .withActors({
-      fetchUserData: fetchUserData
+      fetchUserData: fetchUserDataActor
     })
     .build()
 );
+console.log('🎭 [PROVIDE] Actor fetchUserData REGISTRADO:', fetchUserData);
+// Verificar la configuración final
+console.log('🔧 [DEBUG] Configuración final de la máquina:', stepperMachine);
+console.log('🔧 [DEBUG] Config de la máquina:', JSON.stringify(stepperMachine.config, null, 2));
+console.log('🔧 [DEBUG] Implementations de la máquina:', stepperMachine.implementations);
+console.log('🔧 [DEBUG] Actors específicos:', stepperMachine.implementations.actors);
+console.log('🔧 [DEBUG] ¿fetchUserData existe?:', !!stepperMachine.implementations.actors?.fetchUserData);
+console.log('🔧 [DEBUG] Tipo de fetchUserData:', typeof stepperMachine.implementations.actors?.fetchUserData);
+
+// 🎯 VERIFICAR EL INVOKE ESPECÍFICO SIN JSON.stringify
+try {
+  const machineConfig = stepperMachine.config as any;
+  console.log('🔧 [DEBUG] Machine config keys:', Object.keys(machineConfig));
+  console.log('🔧 [DEBUG] States keys:', machineConfig.states ? Object.keys(machineConfig.states) : 'NO STATES');
+  
+  if (machineConfig.states && machineConfig.states.loadingData) {
+    console.log('🔧 [DEBUG] loadingData state RAW:', machineConfig.states.loadingData);
+    console.log('🔧 [DEBUG] loadingData invoke RAW:', machineConfig.states.loadingData.invoke);
+    console.log('🔧 [DEBUG] loadingData invoke src:', machineConfig.states.loadingData.invoke?.src);
+    console.log('🔧 [DEBUG] loadingData invoke type:', typeof machineConfig.states.loadingData.invoke?.src);
+  } else {
+    console.log('🔧 [DEBUG] loadingData state NOT FOUND');
+  }
+} catch (error) {
+  console.log('🔧 [DEBUG] Error accessing config:', error);
+}
 
 const getStepInfo = (currentStep: string) => {
   const steps = {
@@ -225,6 +308,22 @@ export const Toggler = () => {
     inspect: inspector.inspect
   });
   const currentStepInfo = getStepInfo(state.value as string);
+  
+  // 🔍 Rastrear cambios de estado
+  useEffect(() => {
+    console.log('🔄 [REACT] Estado cambió a:', {
+      currentState: state.value,
+      matches: {
+        STEP1: state.matches(StepState.STEP1),
+        STEP2: state.matches(StepState.STEP2),
+        LOADING_DATA: state.matches(StepState.LOADING_DATA),
+        STEP3: state.matches(StepState.STEP3),
+        STEP4: state.matches(StepState.STEP4)
+      },
+      context: state.context,
+      timestamp: new Date().toISOString()
+    });
+  }, [state.value, state.context]);
   
   const canGoNext = !state.matches(StepState.STEP4) && !state.matches(StepState.LOADING_DATA);
   const canGoPrev = !state.matches(StepState.STEP1) && !state.matches(StepState.LOADING_DATA);
@@ -480,3 +579,5 @@ export const Toggler = () => {
     </div>
   );
 };
+
+

@@ -20,7 +20,19 @@ export class GenericInvokeBuilder<
 
   // Define la fuente del actor (función, promesa, otra máquina, etc.)
   withSource(src: string | (() => Promise<any>)) {
+    console.log('🎭 [INVOKE_BUILDER] withSource called with:', {
+      src: src,
+      type: typeof src,
+      isFunction: typeof src === 'function'
+    });
     this.invokeConfig.src = src;
+    return this;
+  }
+
+  // Define el ID del invoke para XState v5
+  withId(id: string) {
+    console.log('🆔 [INVOKE_BUILDER] withId called with:', id);
+    this.invokeConfig.id = id;
     return this;
   }
 
@@ -60,6 +72,7 @@ export class GenericInvokeBuilder<
   }
 
   build() {
+    console.log('🔥 INVOKE_BUILDER: Building invoke config:', this.invokeConfig);
     return this.invokeConfig;
   }
 }

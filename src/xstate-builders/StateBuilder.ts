@@ -22,11 +22,14 @@ export class GenericStateBuilder<TAction extends string | number | symbol> {
   }
 
   withInvoke(invokeConfig: any) {
+    console.log('🔥 STATE_BUILDER: withInvoke called with:', invokeConfig);
     this.stateConfig.invoke = invokeConfig;
+    console.log('🔥 STATE_BUILDER: stateConfig after invoke:', this.stateConfig);
     return this;
   }
 
   build() {
+    console.log('🔥 STATE_BUILDER: Building final state config:', this.stateConfig);
     return this.stateConfig;
   }
 }

@@ -59,9 +59,16 @@ export class GenericMachineBuilder<
   }
 
   build() {
+    console.log('🏗️ [MACHINE_BUILDER] Building machine with config:', this.config);
+    console.log('🏗️ [MACHINE_BUILDER] Implementations:', this.implementations);
+    
     if (Object.keys(this.implementations).length > 0) {
-      return createMachine(this.config, this.implementations);
+      const machine = createMachine(this.config, this.implementations);
+      console.log('🏗️ [MACHINE_BUILDER] Created machine with implementations:', machine);
+      return machine;
     }
-    return createMachine(this.config);
+    const machine = createMachine(this.config);
+    console.log('🏗️ [MACHINE_BUILDER] Created machine without implementations:', machine);
+    return machine;
   }
 }
