@@ -26,7 +26,7 @@ describe('StateBuilder - Tags, Meta, Description & Output Features', () => {
 
     it('should add multiple tags using withTags', () => {
       const result = builder
-        .withTags(['loading', 'visible', 'critical'])
+        .withTags('loading', 'visible', 'critical')
         .build();
       
       expect(result.tags).toEqual(['loading', 'visible', 'critical']);
@@ -35,15 +35,15 @@ describe('StateBuilder - Tags, Meta, Description & Output Features', () => {
     it('should combine withTag and withTags', () => {
       const result = builder
         .withTag('initial')
-        .withTags(['loading', 'visible'])
+        .withTags('loading', 'visible')
         .withTag('final')
         .build();
       
       expect(result.tags).toEqual(['initial', 'loading', 'visible', 'final']);
     });
 
-    it('should handle empty tags array', () => {
-      const result = builder.withTags([]).build();
+    it('should handle empty tags', () => {
+      const result = builder.withTags().build();
       
       expect(result.tags).toEqual([]);
     });
@@ -161,7 +161,7 @@ describe('StateBuilder - Tags, Meta, Description & Output Features', () => {
     it('should combine tags, meta, description, and output', () => {
       const result = builder
         .withTag('loading')
-        .withTags(['visible', 'critical'])
+        .withTags('visible', 'critical')
         .withMeta({ view: 'shortForm', priority: 'high' })
         .withDescription('Complex state with multiple features')
         .withOutput({ result: 'success' })

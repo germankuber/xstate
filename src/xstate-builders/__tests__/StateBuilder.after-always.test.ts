@@ -1,4 +1,5 @@
 // 🧪 Tests para funcionalidades After y Always en StateBuilder
+import { GenericDelayedTransitionsBuilder } from '../DelayedTransitionsBuilder';
 import { GenericStateBuilder } from '../StateBuilder';
 
 describe('StateBuilder - After & Always Transitions', () => {
@@ -9,47 +10,65 @@ describe('StateBuilder - After & Always Transitions', () => {
   });
 
   describe('⏰ After Transitions Integration', () => {
-    it('should add after configuration to state', () => {
-      const afterConfig = {
+    it('should add after configuration to state using DelayedTransitionsBuilder', () => {
+      const delayedTransitions = GenericDelayedTransitionsBuilder.create<string>()
+        .after(1000, 'timeout')
+        .afterWithActions(5000, ['logTimeout'], 'longTimeout')
+        .build();
+      
+      const result = builder.withAfter(delayedTransitions).build();
+      
+      expect(result.after).toEqual({
         1000: { target: 'timeout' },
         5000: { target: 'longTimeout', actions: ['logTimeout'] }
-      };
-      
-      const result = builder.withAfter(afterConfig).build();
-      
-      expect(result.after).toEqual(afterConfig);
+      });
     });
 
     it('should combine after with other state properties', () => {
-      const afterConfig = { 2000: { target: 'timeout' } };
+      const delayedTransitions = GenericDelayedTransitionsBuilder.create<string>()
+        .after(2000, 'timeout')
+        .build();
       
       const result = builder
         .withEntry('enterAction')
-        .withAfter(afterConfig)
+        .withAfter(delayedTransitions)
         .withTag('timed')
         .build();
       
       expect(result).toEqual({
         entry: ['enterAction'],
-        after: afterConfig,
+        after: { 2000: { target: 'timeout' } },
         tags: ['timed']
       });
     });
 
     it('should override after configuration', () => {
-      const firstAfter = { 1000: { target: 'first' } };
-      const secondAfter = { 2000: { target: 'second' } };
-      
-      const result = builder
-        .withAfter(firstAfter)
-        .withAfter(secondAfter)
+      const firstDelayed = GenericDelayedTransitionsBuilder.create<string>()
+        .after(1000, 'first')
+        .build();
+        
+      const secondDelayed = GenericDelayedTransitionsBuilder.create<string>()
+        .after(2000, 'second')
         .build();
       
-      expect(result.after).toEqual(secondAfter);
+      const result = builder
+        .withAfter(firstDelayed)
+        .withAfter(secondDelayed)
+        .build();
+      
+      expect(result.after).toEqual({ 2000: { target: 'second' } });
     });
 
     it('should handle complex after configurations', () => {
-      const afterConfig = {
+      const delayedTransitions = GenericDelayedTransitionsBuilder.create<string>()
+        .afterWithActionsAndGuard('SHORT_DELAY', ['showWarning'], 'isStillActive', 'warning')
+        .afterWithActions('LONG_DELAY', ['logError', 'notifyUser'], 'error')
+        .afterWithActions(3000, ['cleanup'])
+        .build();
+      
+      const result = builder.withAfter(delayedTransitions).build();
+      
+      expect(result.after).toEqual({
         'SHORT_DELAY': { 
           target: 'warning',
           actions: ['showWarning'],
@@ -62,11 +81,7 @@ describe('StateBuilder - After & Always Transitions', () => {
         3000: {
           actions: ['cleanup']
         }
-      };
-      
-      const result = builder.withAfter(afterConfig).build();
-      
-      expect(result.after).toEqual(afterConfig);
+      });
     });
   });
 

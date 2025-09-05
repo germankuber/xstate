@@ -19,7 +19,9 @@ describe('ActionsBuilder - Advanced Action Features', () => {
       
       expect(result).toEqual({
         type: 'xstate.spawnChild',
-        actor: 'workerMachine'
+        params: {
+          src: 'workerMachine'
+        }
       });
     });
 
@@ -37,10 +39,12 @@ describe('ActionsBuilder - Advanced Action Features', () => {
       
       expect(result).toEqual({
         type: 'xstate.spawnChild',
-        actor: 'workerMachine',
-        id: 'worker-1',
-        input: { data: 'test' },
-        systemId: 'system-worker'
+        params: {
+          src: 'workerMachine',
+          id: 'worker-1',
+          input: { data: 'test' },
+          systemId: 'system-worker'
+        }
       });
     });
 
@@ -54,8 +58,10 @@ describe('ActionsBuilder - Advanced Action Features', () => {
       
       expect(result).toEqual({
         type: 'xstate.spawnChild',
-        actor: actorLogic,
-        id: 'promise-1'
+        params: {
+          src: actorLogic,
+          id: 'promise-1'
+        }
       });
     });
   });
@@ -298,7 +304,9 @@ describe('ActionsBuilder - Advanced Action Features', () => {
       
       expect(result).toEqual({
         type: 'xstate.spawnChild',
-        actor: 'actor'
+        params: {
+          src: 'actor'
+        }
       });
     });
 
@@ -310,7 +318,9 @@ describe('ActionsBuilder - Advanced Action Features', () => {
       
       expect(result).toEqual({
         type: 'xstate.spawnChild',
-        actor: 'actor'
+        params: {
+          src: 'actor'
+        }
       });
     });
 

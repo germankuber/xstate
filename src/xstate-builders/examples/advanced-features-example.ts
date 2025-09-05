@@ -2,23 +2,31 @@
 // Demuestra: Tags, Meta, Description, Output, After/Always, spawnChild, enqueueActions
 
 import { createMachine } from 'xstate';
-import { 
-  GenericStateBuilder, 
-  GenericDelayedTransitionsBuilder,
-  GenericActionsBuilder
+import {
+    GenericActionOptionsBuilder,
+    GenericActionsBuilder,
+    GenericDelayedTransitionsBuilder,
+    GenericEventBuilder,
+    GenericInputBuilder,
+    GenericMetaBuilder,
+    GenericOutputBuilder,
+    GenericSpawnOptionsBuilder,
+    GenericStateBuilder
 } from '../index';
 
 // 🏷️ Ejemplo usando TAGS para categorización robusta de estados
 export const exampleWithTags = () => {
+  const metaConfig = GenericMetaBuilder.create()
+    .withComponent('LoadingSpinner')
+    .withTimeout(5000)
+    .build();
+
   const loadingState = GenericStateBuilder.create<string>()
     .withTag('loading')
     .withTag('visible')
     .withEntry('startSpinner')
     .withExit('stopSpinner')
-    .withMeta({ 
-      component: 'LoadingSpinner',
-      timeout: 5000 
-    })
+    .withMeta(metaConfig)
     .withDescription('Shows loading indicator while processing data')
     .build();
 
@@ -32,10 +40,10 @@ export const exampleWithDelayedTransitions = () => {
     .after(3000, 'timeout')  // Simple timeout
     .afterWithActions(1000, ['showWarning'], 'warning')  // Con acciones
     .afterWithGuard(5000, 'isStillWaiting', 'giveUp')   // Con guard
-    .afterMultiple([
-      { delay: 'QUICK_DELAY', target: 'quick', actions: ['logQuick'] },
-      { delay: 'SLOW_DELAY', target: 'slow', guard: 'canSlow' }
-    ])
+    // Usamos múltiples llamadas en lugar de afterMultiple
+    .after('QUICK_DELAY', 'quick')
+    .afterWithActions('QUICK_DELAY', ['logQuick'])
+    .afterWithGuard('SLOW_DELAY', 'canSlow', 'slow')
     .build();
 
   const stateWithDelays = GenericStateBuilder.create<string>()
@@ -50,27 +58,49 @@ export const exampleWithDelayedTransitions = () => {
 
 // 🏃‍♂️ Ejemplo usando SPAWN CHILD y ADVANCED ACTIONS
 export const exampleWithAdvancedActions = () => {
+  const inputConfig = GenericInputBuilder.create()
+    .withTask('processData')
+    .build();
+
+  const spawnOptions = GenericSpawnOptionsBuilder.create()
+    .withId('worker-1')
+    .withInput(inputConfig)
+    .build();
+
+  const childReadyEvent = GenericEventBuilder.create()
+    .childReady()
+    .build();
+
+  const internalUpdateEvent = GenericEventBuilder.create()
+    .internalUpdate()
+    .build();
+
+  const stopWorkEvent = GenericEventBuilder.create()
+    .stopWork()
+    .build();
+
   const actions = GenericActionsBuilder.create<string, any, any>()
     // spawnChild action
-    .withSpawnChildAction('spawnWorker', 'dataWorker', { 
-      id: 'worker-1', 
-      input: { task: 'processData' } 
-    })
+    .withSpawnChildAction('spawnWorker', 'dataWorker', spawnOptions)
     
     // enqueueActions for complex logic
     .withEnqueueActionsAction('complexProcess', (helpers: any) => {
       const { enqueue, check } = helpers;
-      if (check({ type: 'hasData' })) {
-        enqueue({ type: 'validateData' });
-        enqueue({ type: 'processData' });
+      const hasDataEvent = GenericEventBuilder.create().withType('hasData').build();
+      const validateDataEvent = GenericEventBuilder.create().withType('validateData').build();
+      const processDataEvent = GenericEventBuilder.create().withType('processData').build();
+      
+      if (check(hasDataEvent)) {
+        enqueue(validateDataEvent);
+        enqueue(processDataEvent);
       }
     })
     
     // Other advanced actions
-    .withSendParentAction('notifyParent', { type: 'CHILD_READY' })
+    .withSendParentAction('notifyParent', childReadyEvent)
     .withCancelAction('cancelTimeout', 'timeout-id')
-    .withRaiseAction('raiseEvent', { type: 'INTERNAL_UPDATE' }, { delay: 500 })
-    .withSendToAction('sendToWorker', 'worker-1', { type: 'STOP_WORK' })
+    .withRaiseAction('raiseEvent', internalUpdateEvent, GenericActionOptionsBuilder.create().withDelay(500).build())
+    .withSendToAction('sendToWorker', 'worker-1', stopWorkEvent)
     
     .build();
 
@@ -80,24 +110,36 @@ export const exampleWithAdvancedActions = () => {
 
 // 📤 Ejemplo usando OUTPUT en estados finales
 export const exampleWithFinalStates = () => {
+  const successOutput = GenericOutputBuilder.create()
+    .withStatus('completed')
+    .withResult('Data processed successfully')
+    .withTimestamp()
+    .build();
+
+  const successMeta = GenericMetaBuilder.create()
+    .withLevel('info')
+    .build();
+
+  const errorOutput = GenericOutputBuilder.create()
+    .withStatus('error')
+    .withMessage('Processing failed')
+    .withCode('DATA_ERROR')
+    .build();
+
+  const errorMeta = GenericMetaBuilder.create()
+    .withLevel('error')
+    .build();
+
   const successState = GenericStateBuilder.create<string>()
-    .asFinalStateWithOutput({ 
-      status: 'completed', 
-      result: 'Data processed successfully',
-      timestamp: Date.now()
-    })
+    .asFinalStateWithOutput(successOutput)
     .withTag('success')
-    .withMeta({ level: 'info' })
+    .withMeta(successMeta)
     .build();
 
   const errorState = GenericStateBuilder.create<string>()
-    .asFinalStateWithOutput({ 
-      status: 'error', 
-      message: 'Processing failed',
-      code: 'DATA_ERROR'
-    })
+    .asFinalStateWithOutput(errorOutput)
     .withTag('error')
-    .withMeta({ level: 'error' })
+    .withMeta(errorMeta)
     .build();
 
   console.log('📤 Final States with Output:', { successState, errorState });
@@ -106,56 +148,83 @@ export const exampleWithFinalStates = () => {
 
 // 🔄 Ejemplo COMPLETO: Estados de procesamiento de datos
 export const createDataProcessingStates = () => {
+  const idleMeta = GenericMetaBuilder.create()
+    .withComponent('IdleIndicator')
+    .build();
+
+  const loadingMeta = GenericMetaBuilder.create()
+    .withComponent('LoadingSpinner')
+    .withTimeout(10000)
+    .build();
+
+  const processingMeta = GenericMetaBuilder.create()
+    .withComponent('ProgressBar')
+    .build();
+
+  const successOutput = GenericOutputBuilder.create()
+    .withStatus('completed')
+    .withProcessedItems(0)
+    .withDuration(0)
+    .build();
+
+  const successMeta = GenericMetaBuilder.create()
+    .withComponent('SuccessMessage')
+    .withLevel('info')
+    .build();
+
+  const errorOutput = GenericOutputBuilder.create()
+    .withStatus('error')
+    .withError('Unknown error')
+    .withRetryable(true)
+    .build();
+
+  const errorMeta = GenericMetaBuilder.create()
+    .withComponent('ErrorMessage')
+    .withLevel('error')
+    .build();
+
   const idleState = GenericStateBuilder.create<string>()
     .withTag('ready')
-    .withMeta({ component: 'IdleIndicator' })
+    .withMeta(idleMeta)
     .withDescription('Waiting for data to process')
     .build();
 
   const loadingState = GenericStateBuilder.create<string>()
-    .withTags(['loading', 'visible'])
-    .withAfter({
-      10000: { 
-        target: 'timeout',
-        actions: ['cancelProcessing', 'notifyComplete']
-      }
-    })
+    .withTags('loading', 'visible')
+    .withAfter(
+      GenericDelayedTransitionsBuilder.create<string>()
+        .afterWithActions(10000, ['cancelProcessing', 'notifyComplete'], 'timeout')
+        .build()
+    )
     .withAlways('processing', 'hasDataReady')
-    .withMeta({ 
-      component: 'LoadingSpinner',
-      timeout: 10000 
-    })
+    .withMeta(loadingMeta)
     .withDescription('Loading and preparing data for processing')
     .build();
 
   const processingState = GenericStateBuilder.create<string>()
-    .withTags(['active', 'processing'])
-    .withAfter({
-      30000: { target: 'timeout', actions: ['cancelProcessing'] }
-    })
-    .withMeta({ component: 'ProgressBar' })
+    .withTags('active', 'processing')
+    .withAfter(
+      GenericDelayedTransitionsBuilder.create<string>()
+        .afterWithActions(30000, ['cancelProcessing'], 'timeout')
+        .build()
+    )
+    .withMeta(processingMeta)
     .withDescription('Actively processing data batches')
     .build();
 
   const successState = GenericStateBuilder.create<string>()
-    .asFinalStateWithOutput({
-      status: 'completed',
-      processedItems: 0,
-      duration: 0
-    })
-    .withTags(['success', 'final'])
-    .withMeta({ component: 'SuccessMessage', level: 'info' })
+    .asFinalState()
+    .withOutput(successOutput)
+    .withTags('success', 'final')
+    .withMeta(successMeta)
     .withDescription('Data processing completed successfully')
     .build();
 
   const errorState = GenericStateBuilder.create<string>()
-    .asFinalStateWithOutput({
-      status: 'error',
-      error: 'Unknown error',
-      retryable: true
-    })
-    .withTags(['error', 'final'])
-    .withMeta({ component: 'ErrorMessage', level: 'error' })
+    .asFinalState()
+    .withOutput(errorOutput)
+    .withTags('error', 'final')
+    .withMeta(errorMeta)
     .withDescription('Data processing failed with recoverable error')
     .build();
 

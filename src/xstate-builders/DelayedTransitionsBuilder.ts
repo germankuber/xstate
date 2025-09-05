@@ -46,23 +46,6 @@ export class GenericDelayedTransitionsBuilder<TAction extends string | number | 
     return this;
   }
 
-  // ⏰ Multiple delayed transitions
-  afterMultiple(transitions: Array<{
-    delay: number | string;
-    target?: string;
-    actions?: TAction[];
-    guard?: string;
-  }>) {
-    transitions.forEach(({ delay, target, actions, guard }) => {
-      const config: any = {};
-      if (target) config.target = target;
-      if (actions) config.actions = actions;
-      if (guard) config.guard = guard;
-      this.afterConfig[delay] = config;
-    });
-    return this;
-  }
-
   build() {
     return this.afterConfig;
   }

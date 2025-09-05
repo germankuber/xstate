@@ -120,13 +120,11 @@ describe('DelayedTransitionsBuilder - After Transitions', () => {
 
   describe('⏰ Multiple Delayed Transitions API', () => {
     it('should create multiple transitions at once', () => {
-      const transitions = [
-        { delay: 1000, target: 'timeout1' },
-        { delay: 2000, target: 'timeout2', actions: ['log'] },
-        { delay: 3000, guard: 'isValid', target: 'success' }
-      ];
-      
-      const result = builder.afterMultiple(transitions).build();
+      const result = builder
+        .after(1000, 'timeout1')
+        .afterWithActions(2000, ['log'], 'timeout2')
+        .afterWithGuard(3000, 'isValid', 'success')
+        .build();
       
       expect(result).toEqual({
         1000: { target: 'timeout1' },
@@ -136,21 +134,10 @@ describe('DelayedTransitionsBuilder - After Transitions', () => {
     });
 
     it('should handle complex multiple transitions', () => {
-      const transitions = [
-        { 
-          delay: 'SHORT_DELAY', 
-          target: 'warning',
-          actions: ['showWarning']
-        },
-        { 
-          delay: 'LONG_DELAY', 
-          target: 'error',
-          actions: ['logError', 'notifyUser'],
-          guard: 'stillWaiting'
-        }
-      ];
-      
-      const result = builder.afterMultiple(transitions).build();
+      const result = builder
+        .afterWithActions('SHORT_DELAY', ['showWarning'], 'warning')
+        .afterWithActionsAndGuard('LONG_DELAY', ['logError', 'notifyUser'], 'stillWaiting', 'error')
+        .build();
       
       expect(result).toEqual({
         SHORT_DELAY: { 
@@ -166,7 +153,7 @@ describe('DelayedTransitionsBuilder - After Transitions', () => {
     });
 
     it('should handle empty transitions array', () => {
-      const result = builder.afterMultiple([]).build();
+      const result = builder.build();
       
       expect(result).toEqual({});
     });
@@ -178,9 +165,7 @@ describe('DelayedTransitionsBuilder - After Transitions', () => {
         .after(1000, 'quick')
         .afterWithActions(2000, ['log'], 'medium')
         .afterWithGuard(3000, 'isReady', 'slow')
-        .afterMultiple([
-          { delay: 4000, target: 'veryLong' }
-        ])
+        .after(4000, 'veryLong')
         .build();
       
       expect(result).toEqual({

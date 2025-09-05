@@ -25,14 +25,18 @@ export class GenericStateBuilder<TAction extends string | number | symbol> {
     return this;
   }
 
-  withTags(tags: string[]) {
+  withTags(...tags: string[]) {
     this.stateConfig.tags = [...(this.stateConfig.tags || []), ...tags];
     return this;
   }
 
   // 📝 Meta & Description Support
-  withMeta(meta: Record<string, any>) {
-    this.stateConfig.meta = { ...this.stateConfig.meta, ...meta };
+  withMeta(metaBuilder: any) {
+    // Si es un builder, obtenemos su configuración
+    const metaConfig = metaBuilder && typeof metaBuilder.build === 'function' 
+      ? metaBuilder.build() 
+      : metaBuilder;
+    this.stateConfig.meta = { ...this.stateConfig.meta, ...metaConfig };
     return this;
   }
 
@@ -42,14 +46,27 @@ export class GenericStateBuilder<TAction extends string | number | symbol> {
   }
 
   // 📤 Output Support for Final States
-  withOutput(output: any) {
-    this.stateConfig.output = output;
+  withOutput(outputBuilder: any) {
+    // Si es un builder, obtenemos su configuración
+    const outputConfig = outputBuilder && typeof outputBuilder.build === 'function'
+      ? outputBuilder.build()
+      : outputBuilder;
+    this.stateConfig.output = outputConfig;
     return this;
   }
 
-  asFinalStateWithOutput(output: any) {
+  asFinalState() {
     this.stateConfig.type = 'final';
-    this.stateConfig.output = output;
+    return this;
+  }
+
+  asFinalStateWithOutput(outputBuilder: any) {
+    // Si es un builder, obtenemos su configuración
+    const outputConfig = outputBuilder && typeof outputBuilder.build === 'function'
+      ? outputBuilder.build()
+      : outputBuilder;
+    this.stateConfig.type = 'final';
+    this.stateConfig.output = outputConfig;
     return this;
   }
 
@@ -66,8 +83,12 @@ export class GenericStateBuilder<TAction extends string | number | symbol> {
   }
 
   // ⏰ After/Delayed transitions support
-  withAfter(afterConfig: any) {
-    this.stateConfig.after = afterConfig;
+  // Solo acepta DelayedTransitionsBuilder, no objetos anónimos
+  withAfter(delayedTransitionsBuilder: any) {
+    if (delayedTransitionsBuilder && typeof delayedTransitionsBuilder === 'object') {
+      // Si es un builder, obtenemos su configuración
+      this.stateConfig.after = delayedTransitionsBuilder.config || delayedTransitionsBuilder;
+    }
     return this;
   }
 

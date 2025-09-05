@@ -36,14 +36,20 @@ export class GenericActionsBuilder<
   withSpawnChildAction(
     actionName: TAction,
     actor: string | any,
-    options?: { id?: string; input?: any; systemId?: string }
+    optionsBuilder?: any
   ) {
-    this.actions[actionName] = (context: TContext, event: TEvent) => {
-      // Return spawnChild action object that XState will interpret
+    // Si es un builder, obtenemos su configuración
+    const options = optionsBuilder && typeof optionsBuilder.build === 'function'
+      ? optionsBuilder.build()
+      : optionsBuilder;
+    
+    this.actions[actionName] = () => {
       return {
         type: 'xstate.spawnChild',
-        actor,
-        ...options
+        params: {
+          src: actor,
+          ...options
+        }
       };
     };
     return this;
@@ -52,8 +58,13 @@ export class GenericActionsBuilder<
   // ⬆️ sendParent Action Support
   withSendParentAction(
     actionName: TAction,
-    event: any
+    eventBuilder: any
   ) {
+    // Si es un builder, obtenemos su configuración
+    const event = eventBuilder && typeof eventBuilder.build === 'function'
+      ? eventBuilder.build()
+      : eventBuilder;
+      
     this.actions[actionName] = () => {
       return {
         type: 'xstate.sendParent',
@@ -94,9 +105,17 @@ export class GenericActionsBuilder<
   // 📤 raise Action Support
   withRaiseAction(
     actionName: TAction,
-    eventToRaise: any,
-    options?: { delay?: number; id?: string }
+    eventBuilder: any,
+    optionsBuilder?: any
   ) {
+    // Si es un builder, obtenemos su configuración
+    const eventToRaise = eventBuilder && typeof eventBuilder.build === 'function'
+      ? eventBuilder.build()
+      : eventBuilder;
+    const options = optionsBuilder && typeof optionsBuilder.build === 'function'
+      ? optionsBuilder.build()
+      : optionsBuilder;
+      
     this.actions[actionName] = () => {
       return {
         type: 'xstate.raise',
@@ -111,9 +130,17 @@ export class GenericActionsBuilder<
   withSendToAction(
     actionName: TAction,
     target: string | any,
-    event: any,
-    options?: { delay?: number; id?: string }
+    eventBuilder: any,
+    optionsBuilder?: any
   ) {
+    // Si es un builder, obtenemos su configuración
+    const event = eventBuilder && typeof eventBuilder.build === 'function'
+      ? eventBuilder.build()
+      : eventBuilder;
+    const options = optionsBuilder && typeof optionsBuilder.build === 'function'
+      ? optionsBuilder.build()
+      : optionsBuilder;
+      
     this.actions[actionName] = () => {
       return {
         type: 'xstate.sendTo',
