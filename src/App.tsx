@@ -1,6 +1,7 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import logo from './logo.svg';
+import { Toggler } from './Toggler';
+import { UserFormExample } from './UserFormExample';
 
 function App() {
   return (
@@ -18,6 +19,12 @@ function App() {
         >
           Learn React
         </a>
+        <div style={{ marginTop: '20px' }}>
+          <Toggler />
+        </div>
+        <div style={{ marginTop: '20px' }}>
+          <UserFormExample />
+        </div>
       </header>
     </div>
   );
