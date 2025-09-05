@@ -43,6 +43,11 @@
       "last 1 safari version"
     ]
   },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@statelyai/inspect|copy-anything|is-what|superjson)/)"
+    ]
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.13",
     "autoprefixer": "^10.4.21",
