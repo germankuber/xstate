@@ -2,7 +2,9 @@
 export class GenericInvokeBuilder<
   TState extends string | number | symbol,
   TAction extends string | number | symbol,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TContext = any,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TEvent = any
 > {
   private invokeConfig: any = {};

@@ -1,10 +1,16 @@
 // 🎯 Builder genérico para el patrón .provide() de XState
 export class GenericProvideBuilder<
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TState extends string | number | symbol,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TAction extends string | number | symbol,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TGuard extends string | number | symbol,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TDelay extends string | number | symbol,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TContext = any,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TEvent = any
 > {
   private implementations: any = {};
