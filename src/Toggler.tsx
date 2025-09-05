@@ -69,14 +69,14 @@ const baseMachine = MachineBuilder.create('stepperBase')
       .withState(
         StepState.STEP1,
         StateBuilder.create()
-          .withEntry(StepAction.ON_ENTER_STEP)
+          .withEntry(StepAction.ON_ENTER_STEP, StepAction.SET_STEP1_NAME)
           .withTransitions(
             StepBuilder.create(StepState.STEP1)
               .withTransitionDefinition(
                 StepEvent.NEXT,
                 TransitionBuilder.create()
                   .to(StepState.STEP2)
-                  .withActions(StepAction.LOG_TRANSITION)
+                  .withActions(StepAction.LOG_TRANSITION, StepAction.INCREMENT_STEP_COUNT)
                   .withDelay(StepDelay.SHORT_DELAY)
                   .build()
               )
@@ -87,21 +87,21 @@ const baseMachine = MachineBuilder.create('stepperBase')
       .withState(
         StepState.STEP2,
         StateBuilder.create()
-          .withEntry(StepAction.ON_ENTER_STEP)
+          .withEntry(StepAction.ON_ENTER_STEP, StepAction.SET_STEP2_NAME)
           .withTransitions(
             StepBuilder.create(StepState.STEP2)
               .withTransitionDefinition(
                 StepEvent.NEXT,
                 TransitionBuilder.create()
                   .to(StepState.LOADING_DATA)
-                  .withActions(StepAction.SET_LOADING, StepAction.TRANSITION_TO_LOADING)
+                  .withActions(StepAction.SET_LOADING, StepAction.TRANSITION_TO_LOADING, StepAction.INCREMENT_STEP_COUNT)
                   .build()
               )
               .withTransitionDefinition(
                 StepEvent.PREV,
                 TransitionBuilder.create()
                   .to(StepState.STEP1)
-                  .withActions(StepAction.LOG_TRANSITION)
+                  .withActions(StepAction.LOG_TRANSITION, StepAction.DECREMENT_STEP_COUNT)
                   .guardedBy(StepGuard.CAN_GO_PREV)
                   .build()
               )
@@ -130,16 +130,24 @@ const baseMachine = MachineBuilder.create('stepperBase')
       .withState(
         StepState.STEP3,
         StateBuilder.create()
-          .withEntry(StepAction.ON_ENTER_STEP)
+          .withEntry(StepAction.ON_ENTER_STEP, StepAction.SET_STEP3_NAME)
           .withTransitions(
             StepBuilder.create(StepState.STEP3)
               .withTransitionDefinition(
                 StepEvent.NEXT,
                 TransitionBuilder.create()
                   .to(StepState.STEP4)
-                  .withActions(StepAction.LOG_TRANSITION)
+                  .withActions(StepAction.LOG_TRANSITION, StepAction.INCREMENT_STEP_COUNT)
                   .guardedBy(StepGuard.HAS_VALID_DATA)
                   .withDelay(StepDelay.VALIDATION_DEBOUNCE)
+                  .build()
+              )
+              .withTransitionDefinition(
+                StepEvent.PREV,
+                TransitionBuilder.create()
+                  .to(StepState.STEP2)
+                  .withActions(StepAction.LOG_TRANSITION, StepAction.DECREMENT_STEP_COUNT)
+                  .guardedBy(StepGuard.CAN_GO_PREV)
                   .build()
               )
               .build()
@@ -149,7 +157,7 @@ const baseMachine = MachineBuilder.create('stepperBase')
       .withState(
         StepState.STEP4,
         StateBuilder.create()
-          .withEntry(StepAction.ON_ENTER_STEP)
+          .withEntry(StepAction.ON_ENTER_STEP, StepAction.SET_STEP4_NAME)
           .build()
       )
       .build()
@@ -167,9 +175,64 @@ const stepperMachine = baseMachine.provide(
             eventType: (event as StepperEvent)?.type || 'unknown'
           });
         })
+        .withAssignAction(StepAction.LOG_TRANSITION, assign({
+          stepCount: ({ context }, event) => {
+            // Incrementar stepCount solo cuando vamos hacia adelante
+            if ((event as StepperEvent)?.type === StepEvent.NEXT) {
+              return context.stepCount + 1;
+            }
+            // Decrementar cuando vamos hacia atrás
+            if ((event as StepperEvent)?.type === StepEvent.PREV) {
+              return Math.max(1, context.stepCount - 1);
+            }
+            return context.stepCount;
+          }
+        }))
         .withAction(StepAction.ON_ENTER_STEP, ({ context }) => {
           console.log('🚪 [PROVIDE] Entrando al estado:', context.currentStepName);
         })
+        .withAssignAction(StepAction.ON_ENTER_STEP, assign({
+          visitedSteps: ({ context }) => {
+            const newStep = context.currentStepName;
+            if (!context.visitedSteps.includes(newStep)) {
+              return [...context.visitedSteps, newStep];
+            }
+            return context.visitedSteps;
+          }
+        }))
+        // Acciones para establecer nombres de pasos
+        .withAssignAction(StepAction.SET_STEP1_NAME, assign({
+          currentStepName: 'Inicio'
+        }))
+        .withAssignAction(StepAction.SET_STEP2_NAME, assign({
+          currentStepName: 'Configuración'
+        }))
+        .withAssignAction(StepAction.SET_STEP3_NAME, assign({
+          currentStepName: 'Revisión'
+        }))
+        .withAssignAction(StepAction.SET_STEP4_NAME, assign({
+          currentStepName: 'Finalización'
+        }))
+        .withAssignAction(StepAction.INCREMENT_STEP_COUNT, assign({
+          stepCount: ({ context }) => {
+            const newCount = context.stepCount + 1;
+            console.log('📈 [PROVIDE] INCREMENT_STEP_COUNT:', {
+              from: context.stepCount,
+              to: newCount
+            });
+            return newCount;
+          }
+        }))
+        .withAssignAction(StepAction.DECREMENT_STEP_COUNT, assign({
+          stepCount: ({ context }) => {
+            const newCount = Math.max(1, context.stepCount - 1);
+            console.log('📉 [PROVIDE] DECREMENT_STEP_COUNT:', {
+              from: context.stepCount,
+              to: newCount
+            });
+            return newCount;
+          }
+        }))
         .withAction(StepAction.SET_LOADING, ({ context }) => {
           console.log('⏳ [PROVIDE] SET_LOADING ejecutado:', {
             previousLoading: context.isLoading,
@@ -240,7 +303,16 @@ const stepperMachine = baseMachine.provide(
       GuardsBuilder.create()
         .withGuard(StepGuard.CAN_GO_PREV, ({ context }) => {
           console.log('🛡️ [PROVIDE] Verificando si puede retroceder...');
-          return context.stepCount > 1;
+          console.log('🛡️ [PROVIDE] stepCount:', context.stepCount);
+          console.log('🛡️ [PROVIDE] currentStepName:', context.currentStepName);
+          
+          // Lógica basada en el step actual: no puede ir atrás desde step1
+          const isFirstStep = context.currentStepName === 'Inicio' || context.stepCount <= 1;
+          const canGoBack = !isFirstStep;
+          
+          console.log('🛡️ [PROVIDE] ¿Es primer paso?:', isFirstStep);
+          console.log('🛡️ [PROVIDE] ¿Puede ir atrás?:', canGoBack);
+          return canGoBack;
         })
         .withGuard(StepGuard.HAS_VALID_DATA, ({ context }) => {
           console.log('🛡️ [PROVIDE] Verificando validez de datos...');

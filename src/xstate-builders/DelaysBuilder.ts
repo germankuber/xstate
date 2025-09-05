@@ -23,7 +23,7 @@ export class GenericDelaysBuilder<
   // Agregar un delay con función dinámica
   withDynamicDelay(
     delayName: TDelay, 
-    delayFunction: (context: TContext, event: TEvent) => number
+    delayFunction: (context: TContext, event: TEvent, state?: any) => number
   ) {
     this.delaysConfig[delayName as string] = delayFunction;
     return this;

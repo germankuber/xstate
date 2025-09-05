@@ -17,7 +17,7 @@ export class GenericActionsBuilder<
   // Para acciones que NO modifican el context (efectos secundarios)
   withAction(
     actionName: TAction, 
-    actionImplementation: (params: { context: TContext }, event: TEvent) => void
+    actionImplementation: (params: { context: TContext }, event: TEvent, state?: any) => void
   ) {
     this.actions[actionName] = actionImplementation;
     return this;

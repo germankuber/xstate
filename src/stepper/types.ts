@@ -60,7 +60,10 @@ export enum StepAction {
   SET_LOADING = 'setLoading',
   CLEAR_LOADING = 'clearLoading',
   ENTER_LOADING_STATE = 'enterLoadingState',
-  TRANSITION_TO_LOADING = 'transitionToLoading'
+  TRANSITION_TO_LOADING = 'transitionToLoading',
+  // 🔢 Acciones para manejo de stepCount
+  INCREMENT_STEP_COUNT = 'incrementStepCount',
+  DECREMENT_STEP_COUNT = 'decrementStepCount'
 }
 
 // Enum para las guardas
