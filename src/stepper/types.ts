@@ -2,6 +2,11 @@
 // Estos tipos especializan los genéricos para nuestra aplicación específica
 
 import {
+    GenericActionsBuilder,
+    GenericGuardsBuilder,
+    GenericMachineBuilder,
+    GenericStateBuilder,
+    GenericStatesBuilder,
     GenericStepBuilder,
     GenericTransition,
     GenericTransitionBuilder
@@ -77,5 +82,40 @@ export const TransitionBuilder = {
 export const StepBuilder = {
   create(stateName: StepState): GenericStepBuilder<StepState, StepEvent, StepAction, StepGuard> {
     return GenericStepBuilder.create<StepState, StepEvent, StepAction, StepGuard>(stateName);
+  }
+};
+
+// Builder especializado para nuestra máquina de stepper
+export const MachineBuilder = {
+  create(id: string): GenericMachineBuilder<StepperContext, StepperEvent, StepState, StepAction, StepGuard> {
+    return GenericMachineBuilder.create<StepperContext, StepperEvent, StepState, StepAction, StepGuard>(id);
+  }
+};
+
+// Builder especializado para estados individuales
+export const StateBuilder = {
+  create(): GenericStateBuilder<StepAction> {
+    return GenericStateBuilder.create<StepAction>();
+  }
+};
+
+// Builder especializado para la colección de estados
+export const StatesBuilder = {
+  create(): GenericStatesBuilder<StepState> {
+    return GenericStatesBuilder.create<StepState>();
+  }
+};
+
+// Builder especializado para la colección de acciones
+export const ActionsBuilder = {
+  create(): GenericActionsBuilder<StepAction, StepperContext, StepperEvent> {
+    return GenericActionsBuilder.create<StepAction, StepperContext, StepperEvent>();
+  }
+};
+
+// Builder especializado para la colección de guardas
+export const GuardsBuilder = {
+  create(): GenericGuardsBuilder<StepGuard, StepperContext, StepperEvent> {
+    return GenericGuardsBuilder.create<StepGuard, StepperContext, StepperEvent>();
   }
 };
