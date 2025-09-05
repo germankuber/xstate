@@ -3,8 +3,11 @@
 
 import {
     GenericActionsBuilder,
+    GenericDelaysBuilder,
     GenericGuardsBuilder,
+    GenericInvokeBuilder,
     GenericMachineBuilder,
+    GenericProvideBuilder,
     GenericStateBuilder,
     GenericStatesBuilder,
     GenericStepBuilder,
@@ -17,13 +20,15 @@ export enum StepState {
   STEP1 = 'step1',
   STEP2 = 'step2', 
   STEP3 = 'step3',
-  STEP4 = 'step4'
+  STEP4 = 'step4',
+  LOADING_DATA = 'loadingData'
 }
 
 // Enum para los eventos
 export enum StepEvent {
   NEXT = 'NEXT',
-  PREV = 'PREV'
+  PREV = 'PREV',
+  LOAD_DATA = 'LOAD_DATA'
 }
 
 // Enum para las acciones
@@ -46,7 +51,12 @@ export enum StepAction {
   INCREMENT_ERROR_COUNT = 'incrementErrorCount',
   // 🧪 Acciones de prueba para entender el flujo
   SUCCESS_PATH_ACTION = 'successPathAction',
-  FAILURE_PATH_ACTION = 'failurePathAction'
+  FAILURE_PATH_ACTION = 'failurePathAction',
+  // 🚀 Acciones para invocaciones asíncronas
+  SAVE_API_DATA = 'saveApiData',
+  HANDLE_API_ERROR = 'handleApiError',
+  SET_LOADING = 'setLoading',
+  CLEAR_LOADING = 'clearLoading'
 }
 
 // Enum para las guardas
@@ -56,6 +66,15 @@ export enum StepGuard {
   HAS_VALID_DATA = 'hasValidData'
 }
 
+// Enum para los delays (temporizadores)
+export enum StepDelay {
+  SHORT_DELAY = 'shortDelay',
+  MEDIUM_DELAY = 'mediumDelay', 
+  LONG_DELAY = 'longDelay',
+  LOADING_TIMEOUT = 'loadingTimeout',
+  VALIDATION_DEBOUNCE = 'validationDebounce'
+}
+
 // Interfaz para el context
 export interface StepperContext {
   currentStepName: string;
@@ -63,6 +82,10 @@ export interface StepperContext {
   stepCount: number;
   errorCount: number;
   lastError?: string;
+  // 🚀 Nuevos campos para invocaciones
+  isLoading: boolean;
+  apiData?: any;
+  apiError?: string;
 }
 
 // Tipos especializados usando los genéricos
@@ -70,7 +93,8 @@ export type StepperTransition = GenericTransition<StepState, StepAction, StepGua
 
 export type StepperEvent = 
   | { type: StepEvent.NEXT }
-  | { type: StepEvent.PREV };
+  | { type: StepEvent.PREV }
+  | { type: StepEvent.LOAD_DATA };
 
 // Builders especializados (usando composición para mantener tipado específico)
 export const TransitionBuilder = {
@@ -117,5 +141,26 @@ export const ActionsBuilder = {
 export const GuardsBuilder = {
   create(): GenericGuardsBuilder<StepGuard, StepperContext, StepperEvent> {
     return GenericGuardsBuilder.create<StepGuard, StepperContext, StepperEvent>();
+  }
+};
+
+// Builder especializado para invocaciones (actores asíncronos)
+export const InvokeBuilder = {
+  create(): GenericInvokeBuilder<StepState, StepAction, StepperContext, StepperEvent> {
+    return GenericInvokeBuilder.create<StepState, StepAction, StepperContext, StepperEvent>();
+  }
+};
+
+// Builder especializado para delays (temporizadores)
+export const DelaysBuilder = {
+  create(): GenericDelaysBuilder<StepDelay, StepperContext, StepperEvent> {
+    return GenericDelaysBuilder.create<StepDelay, StepperContext, StepperEvent>();
+  }
+};
+
+// Builder especializado para el patrón .provide()
+export const ProvideBuilder = {
+  create(): GenericProvideBuilder<StepState, StepAction, StepGuard, StepDelay, StepperContext, StepperEvent> {
+    return GenericProvideBuilder.create<StepState, StepAction, StepGuard, StepDelay, StepperContext, StepperEvent>();
   }
 };

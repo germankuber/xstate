@@ -5,6 +5,7 @@ export type GenericTransition<TState, TAction, TGuard> = {
   target?: TState;
   actions?: TAction[];
   guard?: TGuard;
+  delay?: string | number;
   description?: string;
 };
 

@@ -23,6 +23,11 @@ export class GenericTransitionBuilder<TState, TAction, TGuard> {
     return this;
   }
 
+  withDelay(delay: string | number) {
+    this.transition.delay = delay;
+    return this;
+  }
+
   describedAs(description: string) {
     this.transition.description = description;
     return this;

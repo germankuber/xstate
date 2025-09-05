@@ -21,6 +21,11 @@ export class GenericStateBuilder<TAction extends string | number | symbol> {
     return this;
   }
 
+  withInvoke(invokeConfig: any) {
+    this.stateConfig.invoke = invokeConfig;
+    return this;
+  }
+
   build() {
     return this.stateConfig;
   }
