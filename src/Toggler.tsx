@@ -1,6 +1,7 @@
 import { createBrowserInspector } from '@statelyai/inspect';
 import { useMachine } from '@xstate/react';
 import { assign } from 'xstate';
+import './Toggler.css';
 import {
     ActionsBuilder,
     DelaysBuilder,
