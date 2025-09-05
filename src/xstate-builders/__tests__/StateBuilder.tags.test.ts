@@ -146,8 +146,11 @@ describe('StateBuilder - Tags, Meta, Description & Output Features', () => {
     });
 
     it('should handle null/undefined output', () => {
-      const result1 = builder.withOutput(null).build();
-      const result2 = builder.withOutput(undefined).build();
+      const builder1 = GenericStateBuilder.create<string>();
+      const builder2 = GenericStateBuilder.create<string>();
+      
+      const result1 = builder1.withOutput(null).build();
+      const result2 = builder2.withOutput(undefined).build();
       
       expect(result1.output).toBe(null);
       expect(result2.output).toBe(undefined);
